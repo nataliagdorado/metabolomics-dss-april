@@ -1,0 +1,38 @@
+
+package dss; // Debe coincidir con el package de las clases java
+unit FeatureUnit; // El nombre de la clase que implementa RuleUnitData
+
+import adduct.Adduct; // Importamos la lógica de masas
+
+// dollar: nombre temporal, apodo
+// dos puntos: guardar esto en ....
+// corchetes: filtros o condiciones
+// barra inclinada, fuente de datos. en que DataStore de la FeatureUnit hay que mirar
+
+rule "Deconvolución: Agrupar por RT y Adduct" // nombre de la regla
+when
+    // Buscamos un pico inicial. ES COMO UN PIVOTE.
+    // busca en el DataStore de peaks, llama a ese pico p1. dentro del corchete:
+    // coge su masa mz, guárdala como mz1, coge su tiemp rt y guardalo como rt1
+    $p1: /peaks[ $mz1 : mz, $rt1 : rt ]
+
+    // Buscamos otro pico diferente que esté en la misma ventana de RT
+    // THIS distinto de p1, asegurate de que no estamos comparando el pico consigo mismo
+    // guarda la masa de este segundo pico como mz2
+    // maths.abs. compruena que la diferencia de tiempo sea menos a 0.3 mins
+    $p2: /peaks[ this != $p1, $mz2 : mz, Math.abs(rt - $rt1) <= 0.3 ]
+
+    // Buscamos si existe un aducto cuya diferencia de masa encaje
+    // busca en la lista de aductos conocidos, resta las masas de los dos picos y mira si el resultado
+    // es igual al deltaM. el 0.001 es el margen de error
+    $a : /knownAdducts[ Math.abs(($mz2 - $mz1) - deltaM) <= 0.001 ] // Tolerancia de masa
+then
+    // Aquí creamos la Feature o añadimos el pico a una existente
+    // digo que pico he conseguido emparejar
+    System.out.println("Encontrada relación: " + $p1.getId() + " con " + $p2.getId() + " vía " + $a.getLabel());
+
+end
+// Query para poder extraer los resultados
+query GetFeatures
+    $f:/features
+end
