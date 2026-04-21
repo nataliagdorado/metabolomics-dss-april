@@ -4,6 +4,7 @@ import org.drools.ruleunits.api.DataSource;
 import org.drools.ruleunits.api.DataStore;
 import org.drools.ruleunits.api.RuleUnitData;
 import adduct.Adduct;
+import lipid.Peak;
 
 /**
  * Representa la Working Memory para la fase 1: Deconvolución.

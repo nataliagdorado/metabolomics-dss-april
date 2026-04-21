@@ -1,0 +1,79 @@
+package dss; // Debe coincidir con el package de las clases java
+unit FeatureUnit; // El nombre de la clase que implementa RuleUnitData
+
+import adduct.Adduct; // Importamos la lógica de masas
+import lipid.Peak;
+import dss.Feature;
+
+// dollar: nombre temporal, apodo
+// dos puntos: guardar esto en ....
+// corchetes: filtros o condiciones
+// barra inclinada, fuente de datos. en que DataStore de la FeatureUnit hay que mirar
+
+// --- REGLA 1: PRIORIDAD ALTA PARA AGRUPAR ---
+rule "Deconvolución: Agrupar por RT y Masa Neutra" // nombre de la regla
+salience 10 // Forzamos a que esta regla se intente ejecutar primero para todos los picos
+when
+    // Buscamos un pico inicial. ES COMO UN PIVOTE.
+    // busca en el DataStore de peaks, llama a ese pico p1.
+    // coge su masa mz1 y su tiempo rt1
+    $p1: /peaks[ $mz1 : mz, $rt1 : rt ]
+
+    // Cogemos una hipótesis de aducto para este primer pico (ej: ¿y si p1 es M+H?)
+$a1: /knownAdducts
+    // Buscamos otro pico diferente que esté en la misma ventana de RT (0.3 mins)
+    $p2: /peaks[ this != $p1, $mz2 : mz, Math.abs(rt - $rt1) <= 0.3 ]
+
+    // Cogemos otra hipótesis de aducto para el segundo pico (ej: ¿y si p2 es M+Na?)
+    $a2: /knownAdducts[ this != $a1 ]
+
+    // EL CÁLCULO MAESTRO:
+    // Comprobamos si la Masa Neutra calculada para el pico 1 (usando aducto 1)
+    // es casi igual a la del pico 2 (usando aducto 2).
+    // Si coinciden, ¡es que vienen de la misma molécula!
+    eval( Math.abs(Adduct.getMonoisotopicMassFromMZ($mz1, $a1) -
+                   Adduct.getMonoisotopicMassFromMZ($mz2, $a2)) <= 0.01 )
+then
+    // --- LÓGICA DE LA FASE 2: CÁLCULO Y GUARDADO ---
+
+    // Calculamos la masa neutra final (usamos la del primero, ya que son iguales)
+    double mHipotetica = Adduct.getMonoisotopicMassFromMZ($mz1, $a1);
+
+    // Creamos la Feature indicando qué relación de aductos hemos encontrado
+    // Usamos el constructor: Feature(masa, label)
+    Feature f = new Feature(mHipotetica, $a1.getLabel() + "/" + $a2.getLabel());
+
+    // Añadimos los picos que hemos "casado" al grupo
+    f.addPeak($p1);
+    f.addPeak($p2);
+
+    // Guardamos la Feature en el DataStore para que sea accesible desde Java
+    features.add(f);
+
+    // digo qué pareja he conseguido emparejar y qué masa tienen en común
+    System.out.println(">>> Pareja encontrada: " + $p1.getId() + " y " + $p2.getId() +
+                       " apuntan a M=" + String.format("%.4f", mHipotetica));
+end
+
+// --- REGLA 2: PRIORIDAD BAJA PARA LOS QUE SE QUEDAN SOLOS ---
+rule "Anotar picos huérfanos (Unknown Adduct)"
+salience -10 // Se ejecuta solo cuando ya no se pueden formar más parejas
+when
+    // Cogemos un pico que se haya quedado "soltero"
+    $p: /peaks
+
+    // Condición: No debe existir ninguna Feature que ya lo contenga
+    not /features[ groupedPeaks contains $p ]
+then
+    // Creamos una Feature Unknown (masa 0 porque no sabemos su aducto)
+    Feature f = new Feature(0.0, "Unknown");
+    f.addPeak($p);
+    features.add(f);
+
+    System.out.println("Pico solitario (Stage 1): " + $p.getId() + " asignado a Feature 'Unknown'");
+end
+
+// Query para poder extraer los resultados
+query GetFeatures
+    $f:/features
+end

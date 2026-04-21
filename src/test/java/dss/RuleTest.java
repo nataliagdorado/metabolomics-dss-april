@@ -1,111 +1,93 @@
-
 package dss;
 
 import java.util.List;
 import adduct.Adduct;
+import lipid.Peak;
 import org.drools.ruleunits.api.RuleUnitProvider;
 import org.drools.ruleunits.api.RuleUnitInstance;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static java.util.stream.Collectors.toList;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
 
 public class RuleTest {
 
     static final Logger LOG = LoggerFactory.getLogger(RuleTest.class);
 
     @Test
-    public void test() {
-        LOG.info("Creating RuleUnit");
-        // CREO UNA INSTANCIA DE MEASUREMENT UNIT
-        MeasurementUnit measurementUnit = new MeasurementUnit();
-
-        RuleUnitInstance<MeasurementUnit> instance = RuleUnitProvider.get().createRuleUnitInstance(measurementUnit);
-        try {
-            LOG.info("Insert data");
-            measurementUnit.getMeasurements().add(new Measurement("color", "red"));
-            measurementUnit.getMeasurements().add(new Measurement("color", "green"));
-            measurementUnit.getMeasurements().add(new Measurement("color", "blue"));
-
-            LOG.info("Run query. Rules are also fired");
-            List<Measurement> queryResult = instance.executeQuery("FindColor").toList("$m");
-
-            assertEquals(3, queryResult.size());
-            System.out.println(queryResult);
-            assertTrue("contains red", measurementUnit.getControlSet().contains("red"));
-            assertTrue("contains green", measurementUnit.getControlSet().contains("green"));
-            assertTrue("contains blue", measurementUnit.getControlSet().contains("blue"));
-        } finally {
-            instance.close();
-        }
-    }
-
-
-
-    @Test
     public void testFeatureGeneration() {
-        LOG.info("Iniciando Fase 1: Deconvolución");
+        LOG.info("Iniciando Fase 1 y 2: Deconvolución y Cálculo de Masa");
 
-        // 1. Instanciar tu unidad de la práctica
+        // 1. Instanciar la unidad de la práctica
         FeatureUnit unit = new FeatureUnit();
         RuleUnitInstance<FeatureUnit> instance = RuleUnitProvider.get().createRuleUnitInstance(unit);
 
         try {
-            // --- LISTA DE ADUCTOS POSITIVOS ---
+            // 2. CARGA DE ADUCTOS (Positivos y Negativos)
             unit.getKnownAdducts().add(new Adduct("M+H", 1.007276, 1, 1));
-            unit.getKnownAdducts().add(new Adduct("M+2H", 1.007276, 2, 1)); // Doble carga
+            unit.getKnownAdducts().add(new Adduct("M+2H", 1.007276, 2, 1));
             unit.getKnownAdducts().add(new Adduct("M+Na", 22.989218, 1, 1));
             unit.getKnownAdducts().add(new Adduct("M+K", 38.963158, 1, 1));
             unit.getKnownAdducts().add(new Adduct("M+NH4", 18.033823, 1, 1));
-            unit.getKnownAdducts().add(new Adduct("M+H-H2O", -17.0032, 1, 1));
-            unit.getKnownAdducts().add(new Adduct("M+H+NH4", 9.52055, 1, 1));
-            unit.getKnownAdducts().add(new Adduct("2M+H", 1.007276, 1, 2)); // Dímero
-            unit.getKnownAdducts().add(new Adduct("2M+Na", 22.989218, 1, 2));
-            unit.getKnownAdducts().add(new Adduct("M+H+HCOONa", 68.9946, 1, 1));
-            unit.getKnownAdducts().add(new Adduct("2M+H-H2O", -17.0032, 1, 2));
-
-// --- LISTA DE ADUCTOS NEGATIVOS ---
             unit.getKnownAdducts().add(new Adduct("M-H", -1.007276, -1, 1));
             unit.getKnownAdducts().add(new Adduct("M+Cl", 34.969402, -1, 1));
-            unit.getKnownAdducts().add(new Adduct("M+HCOOH-H", 44.998201, -1, 1));
-            unit.getKnownAdducts().add(new Adduct("M-H-H2O", -19.01839, -1, 1));
             unit.getKnownAdducts().add(new Adduct("2M-H", -1.007276, -1, 2));
-            unit.getKnownAdducts().add(new Adduct("M-2H", -1.007276, -2, 1));
-            unit.getKnownAdducts().add(new Adduct("M+F+H", 20.00623, -1, 1));
 
-// 3. Cargar Picos desde el CSV
+            // 3. CARGA DE PICOS DESDE CSV
+            // Asegúrate de que el archivo "peak-feature-30.csv" esté en la raíz del proyecto
             try (java.io.BufferedReader br = new java.io.BufferedReader(new java.io.FileReader("peak-feature-30.csv"))) {
                 String line;
-                br.readLine(); // Saltamos la cabecera (Peak, Feature, Adduct...)
+                br.readLine(); // Saltamos cabecera
                 while ((line = br.readLine()) != null) {
                     String[] d = line.split(",");
-
-                    // Extraemos solo lo que nuestra clase Peak necesita:
-                    // id = d[0], mz = d[3], intensity = d[4], rt = d[5]
-                    Peak p = new Peak(
-                            d[0],
-                            Double.parseDouble(d[3]),
-                            Double.parseDouble(d[4]),
-                            Double.parseDouble(d[5])
-                    );
-
-                    unit.getPeaks().add(p);
+                    if (d.length >= 6) {
+                        Peak p = new Peak(
+                                d[0],                         // ID
+                                Double.parseDouble(d[3]),      // m/z
+                                Double.parseDouble(d[4]),      // Intensity
+                                Double.parseDouble(d[5])       // RT
+                        );
+                        unit.getPeaks().add(p);
+                    }
                 }
-                System.out.println(">>> CSV cargado con éxito.");
+                LOG.info(">>> CSV cargado con éxito.");
             } catch (Exception e) {
                 LOG.error("Error al leer el CSV: " + e.getMessage());
             }
 
-            // 4. Ejecutar reglas y ver resultados
+            // 4. EJECUCIÓN DE REGLAS
+            LOG.info("Ejecutando motor de reglas...");
             instance.fire();
 
-            // Usamos una query para ver cuántas features se han generado
+            // 5. RECUPERACIÓN Y VISUALIZACIÓN DE RESULTADOS
             List<Feature> results = instance.executeQuery("GetFeatures").toList("$f");
-            System.out.println(">>> Total de Features generadas: " + results.size());
 
+            System.out.println("\n==================================================");
+            System.out.println("   REPORTE DE GENERACIÓN DE FEATURES (STAGE 1 & 2)");
+            System.out.println("==================================================");
+            System.out.println("Total de picos procesados: " + unit.getPeaks().getClass().getSimpleName());            System.out.println("Total de Features generadas: " + results.size());
+            System.out.println("--------------------------------------------------");
+
+            // Dentro del bucle de resultados en RuleTest.java
+            for (Feature f : results) {
+                // Fíjate que usamos %f para números decimales y %d para enteros
+                System.out.printf("Feature [%s] | Masa: %.4f | RT: %.2f | Picos: %d%n",
+                        f.getAdductLabel(),
+                        f.getMonoisotopicMass(),
+                        f.getRt(),
+                        f.getGroupedPeaks().size());
+
+                // El bucle de picos dentro de la Feature
+                for (Peak p : f.getGroupedPeaks()) {
+                    System.out.println("   -> " + p.getId() + " (mz: " + p.getMz() + ", rt: " + p.getRt() + ")");
+                }
+            }
+
+            // Validaciones básicas de JUnit
+            assertNotNull(results);
+            assertFalse("No se han generado features, revisa los picos", results.isEmpty());
         } finally {
             instance.close();
         }
