@@ -5,6 +5,8 @@ import org.drools.ruleunits.api.DataStore;
 import org.drools.ruleunits.api.RuleUnitData;
 import adduct.Adduct;
 import lipid.Peak;
+import dss.LabelledPeak;
+import dss.LabelledAdductFeature;
 
 /**
  * Representa la Working Memory para la fase 1: Deconvolución.
@@ -29,7 +31,6 @@ public class FeatureUnit implements RuleUnitData {
         this.features = DataSource.createStore();
     }
 
-    // Getters obligatorios para que Drools pueda leer los DataStores
     public DataStore<Peak> getPeaks() {
         return peaks;
     }
@@ -40,5 +41,11 @@ public class FeatureUnit implements RuleUnitData {
 
     public DataStore<Feature> getFeatures() {
         return features;
+    }
+
+    //stage 2 final
+    private DataStore<LabelledAdductFeature> labelledFeatures = DataSource.createStore();
+    public DataStore<LabelledAdductFeature> getLabelledFeatures() {
+        return labelledFeatures;
     }
 }

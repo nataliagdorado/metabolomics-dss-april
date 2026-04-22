@@ -3,6 +3,9 @@ package dss;
 import java.util.List;
 import adduct.Adduct;
 import lipid.Peak;
+import dss.Feature;
+import dss.LabelledPeak;
+import dss.LabelledAdductFeature; // Clase nueva del Stage 2
 import org.drools.ruleunits.api.RuleUnitProvider;
 import org.drools.ruleunits.api.RuleUnitInstance;
 import org.junit.Test;
@@ -12,7 +15,7 @@ import org.slf4j.LoggerFactory;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 
-public class RuleTest {
+public class RuleTestStage2 {
 
     static final Logger LOG = LoggerFactory.getLogger(RuleTest.class);
 
@@ -50,16 +53,16 @@ public class RuleTest {
             unit.getKnownAdducts().add(new Adduct("2M-H", -1.007276, -1, 2));
             unit.getKnownAdducts().add(new Adduct("M-2H", -1.007276, -2, 1));
             unit.getKnownAdducts().add(new Adduct("M+F+H", 20.00623, -1, 1));
+
             // 3. UPLOAD OF THE CSV
             try (java.io.BufferedReader br = new java.io.BufferedReader(new java.io.FileReader("peak-feature-30.csv"))) {
                 String line;
                 br.readLine(); //jump first title row
                 while ((line = br.readLine()) != null) { //a while for reading all the lines
                     String[] d = line.split(","); // comma separator, each time it founds a comma it splits
-                    if (d.length >= 6) { // solo crea el pico si tiene seis columnas(el array tiene 6 posiciones, de 0 a 5) para evitar errores
+                    if (d.length >= 6) { // solo crea el pico si tiene seis columnas
                         Peak p = new Peak(
                                 d[0],// ID
-                                // we dont use que 1 and 2 because those are the things we're calculating
                                 Double.parseDouble(d[3]),// m/z
                                 Double.parseDouble(d[4]),// Intensity
                                 Double.parseDouble(d[5])// RT
@@ -75,33 +78,41 @@ public class RuleTest {
             // DROOLS
             LOG.info("Drools working...");
             //la instance que hice arriba - llamo al metodo fire de RuleUnitInstance
-            //drools busca que reglas se pueden aplicar y ajecuta acciones, como crear features y asignar adducts
             instance.fire();
 
-         //5. llamo a la query dentro de .drl. Le pido todas las features ($f) y los pongo en un list
+            // 5. QUERIES - RECUPERACIÓN DE DATOS
+            // Recuperamos las Features (Stage 1)
             List<Feature> results = instance.executeQuery("GetFeatures").toList("$f");
-            // PRINTS
-            System.out.println("CREATION OF FEATURES. STAGE 1 AND 2");
-            System.out.println("Number of processed peaks: " + unit.getPeaks().getClass().getSimpleName());
+
+            // PARTE NUEVA
+            //lf debe coincidir con el nombre query del .drl
+            List<LabelledAdductFeature> labelledResults = instance.executeQuery("GetLabelledFeatures").toList("$lf");
+
+            // PRINTS STAGE 1
+            System.out.println("\nSTAGE 1: GRUPOS POR RT");
             System.out.println("Number of features generated: " + results.size());
 
-            // results ruleTest.java
-            for (Feature f : results) {
-                System.out.printf("Feature [%s] | Mass: %.4f | RT: %.2f | Peaks: %d%n",
-                        f.getAdductLabel(),
-                        f.getMonoisotopicMass(),
-                        f.getRt(),
-                        f.getGroupedPeaks().size());
+            //  PRINTS STAGE 2
+            System.out.println("\nSTAGE 2: DECONVOLUTION RESULTS");
+            System.out.println("Number of labelled lipids: " + labelledResults.size());
 
-                // El bucle de picos dentro de la Feature
-                for (Peak p : f.getGroupedPeaks()) {
-                    System.out.println("   -> " + p.getId() + " (mz: " + p.getMz() + ", rt: " + p.getRt() + ")");
+            for (LabelledAdductFeature laf : labelledResults) {
+                System.out.printf("NEUTRAL MASS: %.4f | MAIN ADDUCT: %s%n",
+                        laf.getNeutralMass(),
+                        laf.getMainAdduct());
+
+                // PICOS ETIQUETADOS DENTRO
+                for (LabelledPeak lp : laf.getLabelledPeaks()) {
+                    System.out.println("   ID: " + lp.getOriginalPeak().getId() +
+                                       " | Adduct: " + lp.getAssignedAdduct().getLabel() +
+                                       " | Indiv. Mass: " + String.format("%.4f", lp.getMonoisotopicMass()));
                 }
             }
 
-            // Validaciones básicas de JUnit
-            assertNotNull(results);
-            assertFalse("Not generated features, problem in peaks", results.isEmpty());
+            // ERRORES
+            assertNotNull(labelledResults);
+            assertFalse("No se han generado LabelledFeatures", labelledResults.isEmpty());
+
         } finally {
             instance.close();
         }

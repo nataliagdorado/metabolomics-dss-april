@@ -23,7 +23,7 @@ public class Adduct {
      * @return la masa monoisotópica neutra (M) calculada
      */
 
-    // este metodo recibe lo de arriba. tiene acceso a todo lo fisico de la molecula
+    // este metodo recibe lo de arriba. tiene acceso atodo lo fisico de la molecula
     public static Double getMonoisotopicMassFromMZ(Double mz, Adduct adduct) {
         if (adduct == null) return null;
 
@@ -32,9 +32,7 @@ public class Adduct {
         int n = adduct.getMultimer();
 
         /*
-           LA FÓRMULA UNIVERSAL:
            mz = (n*M + adductMass) / z
-
            DESPEJANDO M:
            M = ((mz * z) - adductMass) / n
         */
@@ -44,15 +42,10 @@ public class Adduct {
         return monoisotopicMass;
     }
 
-    // GETTERS (Necesarios para Drools y el método static)
+    // GETTERS
     public String getLabel() { return label; }
     public double getDeltaM() { return deltaM; }
     public int getCharge() { return charge; }
     public int getMultimer() { return multimer; }
 
-
-    public static Double getMonoisotopicMassFromMZ(Double mz, String adductLabel) {
-        // con esto no puedo hacer nada?!
-        return null;
-    }
 }
