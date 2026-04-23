@@ -1,11 +1,12 @@
-lipid\Peak.class
 dss\Compound.class
-adduct\Adduct.class
 dss\Annotation.class
 dss\LabelledPeak.class
 dss\LabelledAdductFeature.class
-lipid\Lipid.class
-adduct\AdductList.class
+dss\DatabaseManager.class
 dss\FeatureUnit.class
 lipid\LipidScoreUnit.class
 dss\Feature.class
+lipid\Peak.class
+adduct\Adduct.class
+lipid\Lipid.class
+adduct\AdductList.class
