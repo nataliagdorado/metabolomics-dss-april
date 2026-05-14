@@ -7,6 +7,11 @@ C:\Users\twopl\Desktop\Códigos Alberto\metabolomics-dss-april\metabolomics-dss-
 C:\Users\twopl\Desktop\Códigos Alberto\metabolomics-dss-april\metabolomics-dss-april\src\main\java\dss\FeatureUnit.java
 C:\Users\twopl\Desktop\Códigos Alberto\metabolomics-dss-april\metabolomics-dss-april\src\main\java\dss\LabelledAdductFeature.java
 C:\Users\twopl\Desktop\Códigos Alberto\metabolomics-dss-april\metabolomics-dss-april\src\main\java\dss\LabelledPeak.java
-C:\Users\twopl\Desktop\Códigos Alberto\metabolomics-dss-april\metabolomics-dss-april\src\main\java\lipid\Lipid.java
-C:\Users\twopl\Desktop\Códigos Alberto\metabolomics-dss-april\metabolomics-dss-april\src\main\java\lipid\LipidScoreUnit.java
+C:\Users\twopl\Desktop\Códigos Alberto\metabolomics-dss-april\metabolomics-dss-april\src\main\java\dss\ScoredAnnotation.java
+C:\Users\twopl\Desktop\Códigos Alberto\metabolomics-dss-april\metabolomics-dss-april\src\main\java\dss\Stage1DeconvolutionService.java
+C:\Users\twopl\Desktop\Códigos Alberto\metabolomics-dss-april\metabolomics-dss-april\src\main\java\dss\Stage2NeutralMassService.java
+C:\Users\twopl\Desktop\Códigos Alberto\metabolomics-dss-april\metabolomics-dss-april\src\main\java\dss\Stage3AnnotationService.java
+C:\Users\twopl\Desktop\Códigos Alberto\metabolomics-dss-april\metabolomics-dss-april\src\main\java\dss\Stage4Unit.java
+C:\Users\twopl\Desktop\Códigos Alberto\metabolomics-dss-april\metabolomics-dss-april\src\main\java\dss\Stage5Unit.java
+C:\Users\twopl\Desktop\Códigos Alberto\metabolomics-dss-april\metabolomics-dss-april\src\main\java\dss\Stage6RankingService.java
 C:\Users\twopl\Desktop\Códigos Alberto\metabolomics-dss-april\metabolomics-dss-april\src\main\java\lipid\Peak.java

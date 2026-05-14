@@ -1,4 +1,5 @@
 package dss;
+
 import org.drools.ruleunits.api.DataSource;
 import org.drools.ruleunits.api.DataStore;
 
@@ -18,17 +19,29 @@ public class LabelledAdductFeature {
     }
 
 
-
     private DataStore<LabelledAdductFeature> labelledFeatures = DataSource.createStore();
+
     public DataStore<LabelledAdductFeature> getLabelledFeatures() {
         return labelledFeatures;
     }
+
     public void addLabelledPeak(LabelledPeak lp) {
         this.labelledPeaks.add(lp);
     }
+
     public List<LabelledPeak> getLabelledPeaks() {
         return labelledPeaks;
     }
+
+
+    public Feature getFeature() {
+        return originalFeature;
+    }
+
+    public double getMonoisotopicMass() {
+        return neutralMass;
+    }
+
     // FOR STAGE 3
     public double getNeutralMass() { return neutralMass; }
     public String getMainAdduct() { return mainAdduct; }

@@ -1,0 +1,50 @@
+package dss;
+unit Stage5Unit;
+
+import dss.ScoredAnnotation;
+import dss.Annotation;
+import dss.Compound;
+
+rule "Elution Order: Positive Evidence (logP and RT match)"
+when
+    //  dos anotaciones distintas
+    $sa1: /scoredAnnotations
+    $sa2: /scoredAnnotations[ this != $sa1,
+                               annotation.labelledFeature != $sa1.annotation.labelledFeature ]
+
+
+    $logP1: Double() from $sa1.getAnnotation().getCompound().getLogp()
+    $logP2: Double() from $sa2.getAnnotation().getCompound().getLogp()
+    $rt1: Double() from $sa1.getAnnotation().getAnnotationRT()
+    $rt2: Double() from $sa2.getAnnotation().getAnnotationRT()
+
+    // Si el que tiene más LogP tiene también más RT -> OK
+    eval( $logP1 > $logP2 && $rt1 > $rt2 )
+then
+    modify($sa1) { setScoreRT(1.0) };
+    modify($sa2) { setScoreRT(1.0) };
+    System.out.println("Drools Stage 5: Positive RT evidence found.");
+end
+
+rule "Elution Order: Negative Evidence (logP and RT mismatch)"
+when
+    $sa1: /scoredAnnotations
+    $sa2: /scoredAnnotations[ this != $sa1,
+                               annotation.labelledFeature != $sa1.annotation.labelledFeature ]
+
+    $logP1: Double() from $sa1.getAnnotation().getCompound().getLogp()
+    $logP2: Double() from $sa2.getAnnotation().getCompound().getLogp()
+    $rt1: Double() from $sa1.getAnnotation().getAnnotationRT()
+    $rt2: Double() from $sa2.getAnnotation().getAnnotationRT()
+
+    // Si el que tiene más LogP tiene MENOS RT  ERROR de elución
+    eval( $logP1 > $logP2 && $rt1 < $rt2 )
+then
+    modify($sa1) { setScoreRT(0.0) };
+    modify($sa2) { setScoreRT(0.0) };
+    System.out.println("Drools Stage 5: Negative RT evidence found.");
+end
+
+query GetFinalScoredAnnotations
+    $sa: /scoredAnnotations
+end

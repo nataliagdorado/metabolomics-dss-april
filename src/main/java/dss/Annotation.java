@@ -1,17 +1,22 @@
 package dss;
 
 public class Annotation {
-    private LabelledAdductFeature feature; // La señal que detectó el equipo
-    private Compound compound;             // El nombre que hemos encontrado en la DB
+    private LabelledAdductFeature feature;
+    private Compound compound;
 
     public Annotation(LabelledAdductFeature feature, Compound compound) {
         this.feature = feature;
         this.compound = compound;
     }
 
-    // Getters
     public LabelledAdductFeature getLabelledFeature() { return feature; }
     public Compound getCompound() { return compound; }
 
-
+    // Este método facilita la vida a Drools para el Stage 5
+    public double getAnnotationRT() {
+        if (feature != null && feature.getFeature() != null) {
+            return feature.getFeature().getRt();
+        }
+        return 0.0;
+    }
 }

@@ -5,8 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class DatabaseManager {
-    private static final String URL = "jdbc:sqlite:src/main/resources/metabolites.db";
-
+    private static final String URL = "jdbc:sqlite:src/main/resources/metabolite.db";
     public List<Compound> searchByMass(double targetMass, double tolerance) {
         List<Compound> compounds = new ArrayList<>();
 

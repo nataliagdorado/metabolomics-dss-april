@@ -1,0 +1,89 @@
+package dss;
+unit Stage4Unit;
+
+import dss.ScoredAnnotation;
+import dss.Annotation;
+import dss.LabelledAdductFeature;
+import dss.LabelledPeak;
+
+rule "Fuzzy Logic for Alanine (Example M+Na relative intensity)"
+when
+    // Pillamos la anotación principal
+    $sa: /scoredAnnotations[ annotation.compound.name == "Alanine" ]
+
+    //LabelledPeaks DENTRO de la lista de la anotación
+    $lp: LabelledPeak( assignedAdduct.label == "M+Na" ) from $sa.annotation.labelledFeature.labelledPeaks
+    $mainLp: LabelledPeak( assignedAdduct.label == "M+H" ) from $sa.annotation.labelledFeature.labelledPeaks
+then
+    // Como ahora sabe 100% que son LabelledPeaks, ya no da error el getOriginalPeak()
+    double observedRatio = $lp.getOriginalPeak().getIntensity() / $mainLp.getOriginalPeak().getIntensity();
+    double expectedRatio = 0.344;
+
+    double deviation = Math.abs(observedRatio - expectedRatio);
+    double score = 0.0;
+
+    // Función trapezoidal del PDF
+    if (deviation <= 0.2) {
+        score = 1.0;
+    } else if (deviation > 0.2 && deviation <= 0.5) {
+        score = 1.0 - ((deviation - 0.2) / 0.3);
+    } else {
+        score = 0.0;
+    }
+
+    modify($sa) {
+        setScoreAdduct(score)
+    };
+end
+
+query GetScoredAnnotations
+    $sa: /scoredAnnotations
+end
+
+// --- REGLAS PARA DOPAMINA ---
+
+rule "Fuzzy Logic for Dopamine (M+Na)"
+when
+    $sa: /scoredAnnotations[ annotation.compound.name == "Dopamine" ]
+    $lp: LabelledPeak( assignedAdduct.label == "M+Na" ) from $sa.annotation.labelledFeature.labelledPeaks
+    $mainLp: LabelledPeak( assignedAdduct.label == "M+H" ) from $sa.annotation.labelledFeature.labelledPeaks
+then
+    double deviation = Math.abs(($lp.getOriginalPeak().getIntensity() / $mainLp.getOriginalPeak().getIntensity()) - 0.390);
+    double score = (deviation <= 0.2) ? 1.0 : (deviation <= 0.5) ? 1.0 - ((deviation - 0.2) / 0.3) : 0.0;
+    modify($sa) { setScoreAdduct(score) };
+end
+
+rule "Fuzzy Logic for Dopamine (M+NH4)"
+when
+    $sa: /scoredAnnotations[ annotation.compound.name == "Dopamine" ]
+    $lp: LabelledPeak( assignedAdduct.label == "M+NH4" ) from $sa.annotation.labelledFeature.labelledPeaks
+    $mainLp: LabelledPeak( assignedAdduct.label == "M+H" ) from $sa.annotation.labelledFeature.labelledPeaks
+then
+    double deviation = Math.abs(($lp.getOriginalPeak().getIntensity() / $mainLp.getOriginalPeak().getIntensity()) - 0.293);
+    double score = (deviation <= 0.2) ? 1.0 : (deviation <= 0.5) ? 1.0 - ((deviation - 0.2) / 0.3) : 0.0;
+    modify($sa) { setScoreAdduct(score) };
+end
+
+// --- REGLAS PARA SEROTONINA ---
+
+rule "Fuzzy Logic for Serotonin (M+Na)"
+when
+    $sa: /scoredAnnotations[ annotation.compound.name == "Serotonin" ]
+    $lp: LabelledPeak( assignedAdduct.label == "M+Na" ) from $sa.annotation.labelledFeature.labelledPeaks
+    $mainLp: LabelledPeak( assignedAdduct.label == "M+H" ) from $sa.annotation.labelledFeature.labelledPeaks
+then
+    double deviation = Math.abs(($lp.getOriginalPeak().getIntensity() / $mainLp.getOriginalPeak().getIntensity()) - 0.275);
+    double score = (deviation <= 0.2) ? 1.0 : (deviation <= 0.5) ? 1.0 - ((deviation - 0.2) / 0.3) : 0.0;
+    modify($sa) { setScoreAdduct(score) };
+end
+
+rule "Fuzzy Logic for Serotonin (M+NH4)"
+when
+    $sa: /scoredAnnotations[ annotation.compound.name == "Serotonin" ]
+    $lp: LabelledPeak( assignedAdduct.label == "M+NH4" ) from $sa.annotation.labelledFeature.labelledPeaks
+    $mainLp: LabelledPeak( assignedAdduct.label == "M+H" ) from $sa.annotation.labelledFeature.labelledPeaks
+then
+    double deviation = Math.abs(($lp.getOriginalPeak().getIntensity() / $mainLp.getOriginalPeak().getIntensity()) - 0.196);
+    double score = (deviation <= 0.2) ? 1.0 : (deviation <= 0.5) ? 1.0 - ((deviation - 0.2) / 0.3) : 0.0;
+    modify($sa) { setScoreAdduct(score) };
+end
