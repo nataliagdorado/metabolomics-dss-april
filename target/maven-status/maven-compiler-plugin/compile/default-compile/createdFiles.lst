@@ -11,6 +11,7 @@ dss\FeatureUnit.class
 dss\Stage1DeconvolutionService.class
 dss\Feature.class
 lipid\Peak.class
+main\App.class
 adduct\Adduct.class
 dss\ScoredAnnotation.class
 adduct\AdductList.class

@@ -28,4 +28,21 @@ public class Stage3AnnotationService {
         }
         return allAnnotations;
     }
+    public List<dss.Annotation> findCandidates(List<Feature> features) {
+        List<dss.Annotation> results = new ArrayList<>();
+
+        for (Feature f : features) {
+            List<Compound> candidates = dbManager.getCompoundsByMass(f.getMonoisotopicMass(), 0.05);
+
+            for (Compound c : candidates) {
+                LabelledAdductFeature laf = new LabelledAdductFeature(f, f.getMonoisotopicMass(), "M+H");
+                dss.Annotation newAnnotation = new dss.Annotation(laf, c);
+                results.add(newAnnotation);
+            }
+        }
+
+        System.out.println("[Stage 3] Database search finished. Candidates found: " + results.size());
+        return results;
+    }
+
 }

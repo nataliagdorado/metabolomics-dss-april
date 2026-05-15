@@ -16,4 +16,6 @@ public class Stage6RankingService {
         //mayor a menor puntuación
         annotations.sort(Comparator.comparingDouble(ScoredAnnotation::getScoreFinal).reversed());
     }
+
+
 }
