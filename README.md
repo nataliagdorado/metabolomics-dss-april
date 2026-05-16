@@ -21,7 +21,6 @@ The project showcases a strong separation of concerns, decoupling deterministic 
 
 ## ⚙️ Core Architecture & Execution Flow
 
-The system processes data sequentially through a meticulously designed modular workflow. The primary execution flow and logic integration can be traced through the main orchestrator located at `src/main/java/pipeline/ExplanaibleMain.java`.
 
 ### Stage 1 & 2: Data-Driven Deconvolution
 * Evaluates raw LC-MS peaks and groups them into unified features using strict RT tolerance windows.
@@ -33,11 +32,9 @@ The system processes data sequentially through a meticulously designed modular w
 
 ### Stage 4: Adduct Pattern Evaluation (Fuzzy Logic)
 * Ingests putative annotations and applies Drools-based expert rules.
-* Uses **trapezoidal fuzzy membership functions** to calculate an `Adduct Score`, evaluating the likelihood of the observed adduct hierarchy against expected compound class behavior.
 
 ### Stage 5: Contextual Elution Reasoning
 * Evaluates the physical chromatography behavior of compounds.
-* Compares the hydrophobic properties (**LogP** from the database) of annotated pairs against their observed Retention Time (RT) to generate a contextual `RT Score` based on expected elution order.
 
 ### Stage 6: Final Integration & Ranking
 * Aggregates partial scores (Adduct + RT) using a configurable weighted average.
