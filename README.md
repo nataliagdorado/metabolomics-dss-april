@@ -59,12 +59,4 @@ The system processes data sequentially through a meticulously designed modular w
 * Maven 3.8+ installed.
 * `metabolite.db` properly seeded with reference compounds located in the project root.
 
-### Build and Run
-This project relies on code generation via Drools Rule Units. A clean Maven build is required before execution:
-
-```bash
-# 1. Clean and compile the rule engine and Java classes
-mvn clean compile
-
-# 2. Run the main explainable pipeline
 mvn exec:java -Dexec.mainClass="pipeline.ExplanaibleMain"
