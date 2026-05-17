@@ -56,4 +56,3 @@ The project showcases a strong separation of concerns, decoupling deterministic 
 * Maven 3.8+ installed.
 * `metabolite.db` properly seeded with reference compounds located in the project root.
 
-mvn exec:java -Dexec.mainClass="pipeline.ExplanaibleMain"
