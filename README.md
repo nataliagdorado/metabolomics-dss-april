@@ -7,15 +7,15 @@
 ![Bioinformatics](https://img.shields.io/badge/Bioinformatics-LC--MS-lightgrey?style=for-the-badge)
 
 ## 📌 Executive Summary
-This repository contains a fully automated, rule-based **Decision Support System (DSS)** designed to process and annotate Liquid Chromatography-Mass Spectrometry (LC-MS) data. By bridging analytical chemistry and data science, the system transforms raw detected signals (features) into ranked, highly confident metabolite identifications.
+This repository contains a rule-based **Decision Support System (DSS)** designed to process and annotate Liquid Chromatography-Mass Spectrometry (LC-MS) data.The system transforms raw detected signals (peaks) into ranked metabolite identificated.
 
-The project showcases a strong separation of concerns, decoupling deterministic data processing from knowledge-based expert reasoning. It demonstrates proficiency in **Relational Databases (SQL)**, **Algorithm Design**, and **Software Architecture**, specifically tailored for bioinformatics and cheminformatics workflows.
+The project showcases a strong separation of concerns, decoupling deterministic data processing from knowledge-based expert reasoning. It demonstrates proficiency in **Relational Databases (SQL)**, **Algorithm Design**, and **Software Architecture**.
 
 ## 🎯 Key Competencies Demonstrated
-* **Data Integration & SQL:** Robust querying and management of chemical compound libraries using JDBC and SQLite, mapping exact masses to complex database schemas.
+* **Data Integration & SQL:** Querying and management of chemical compound libraries using JDBC and SQLite, mapping exact masses to complex database schemas.
 * **Knowledge-Based Engineering:** Implementation of an expert rule engine (Drools) applying **Fuzzy Logic** to evaluate adduct hierarchies and complex biochemical patterns.
-* **Modular Software Architecture:** Highly decoupled, 6-stage pipeline designed for extreme flexibility. The system allows for seamless modifications, such as tweaking RT (Retention Time) grouping windows, adjusting fuzzy scoring functions, introducing new adducts, or modifying compound behavior logic during chromatography without breaking the core execution.
-* **Explainable AI / Scoring Systems:** Algorithmic integration of multiple evidence sources (mass accuracy, adduct relative intensity, and expected elution order via LogP) into a transparent, weighted final score.
+* **Modular Software Architecture:** H
+* **Scoring Systems:** Algorithmic integration of multiple evidence sources (mass accuracy, adduct relative intensity, and expected elution order via LogP) into a transparent, weighted final score.
 
 ---
 
@@ -23,12 +23,12 @@ The project showcases a strong separation of concerns, decoupling deterministic 
 
 
 ### Stage 1 & 2: Data-Driven Deconvolution
-* Evaluates raw LC-MS peaks and groups them into unified features using strict RT tolerance windows.
+* Evaluates raw LC-MS peaks and groups them into unified features using RT tolerance windows.
 * Calculates theoretical neutral masses through algorithmic deconvolution of detected signals.
 
 ### Stage 3: Database Mapping (SQL)
 * Interfaces with a localized SQLite relational database.
-* Executes parameterized SQL queries to map calculated neutral masses to potential metabolite candidates within strict scientific tolerances (e.g., 0.05 Da).
+* Executes parameterized SQL queries to map calculated neutral masses to potential metabolite candidates within strict scientific tolerances 
 
 ### Stage 4: Adduct Pattern Evaluation (Fuzzy Logic)
 * Ingests putative annotations and applies Drools-based expert rules.
@@ -45,14 +45,8 @@ The project showcases a strong separation of concerns, decoupling deterministic 
 ## 🛠️ Technical Stack
 * **Core Language:** Java 21
 * **Database / Persistence:** SQLite, JDBC (Raw SQL query optimization)
-* **Rule Engine:** Drools 10 (Rule Units, `.drl` files for business logic)
+* **Rule Engine:** Drools (Rule Units, `.drl` files for business logic)
 * **Build / Dependency Management:** Maven
-* **Testing:** JUnit 4 (Comprehensive validation of rule logic and state modifications)
+* **Testing:** JUnit 4 
 
-## 🚀 Getting Started
-
-### Prerequisites
-* JDK 21 installed and configured.
-* Maven 3.8+ installed.
-* `metabolite.db` properly seeded with reference compounds located in the project root.
 
